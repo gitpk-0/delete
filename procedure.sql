@@ -1,8 +1,13 @@
+-- creating the refresh_tables procedure
 CREATE PROCEDURE refresh_tables()
 LANGUAGE plpgsql
 AS $$
 BEGIN
-DELETE FROM detailed; -- this will empty the detailed table on any existing info.
+
+-- clearing all data from detailed table (and summary)
+DELETE FROM detailed;
+
+-- adding new data back into detailed table
 INSERT INTO detailed (
     customer_id,
     first_name,
@@ -23,10 +28,13 @@ r.return_date
 FROM customer as c
 INNER JOIN rental as r ON
 c.customer_id = r.customer_id;
+
 END;$$
--- To call stored procedure
+
+-- calling the stored procedure
 CALL refresh_tables();
--- To view results
+
+-- viewing the results of the stored procedure call
 SELECT *
 FROM detailed;
 SELECT *
