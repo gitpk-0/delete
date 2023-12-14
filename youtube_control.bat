@@ -1,20 +1,20 @@
 @echo off
 setlocal
 
-:: Get the current hour
-for /f "tokens=1 delims=:" %%a in ('echo %time%') do set currenthour=%%a
+:: Get the current hour and AM/PM part
+for /f "tokens=1,2 delims=: " %%a in ('time /t') do (
+    set currenthour=%%a
+    set ampm=%%b
+)
 
-:: Correct for single digit hours (leading space)
-if "%currenthour:~0,1%" == " " set currenthour=0%currenthour:~1,1%
-
-:: Convert to a number for comparison
-set /a currenthour=%currenthour%
+:: Convert hour to number for comparison (removing leading zero if present)
+set /a currenthour=1%currenthour% %% 100
 
 :: Define hosts file path
 set HOSTSFILE=%windir%\System32\drivers\etc\hosts
 
-:: Check if current time is between 14 (2 PM) and 15 (3 PM)
-if %currenthour% geq 14 if %currenthour% lss 15 (
+:: Check if current time is between 2 PM and 3 PM
+if %currenthour%==2 if "%ampm%"=="PM" (
     echo Unblocking YouTube...
     :: Unblock YouTube: Remove YouTube lines from the hosts file
     findstr /v /i "youtube.com" "%HOSTSFILE%" > "%HOSTSFILE%.tmp"
