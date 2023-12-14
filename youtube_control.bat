@@ -1,6 +1,14 @@
 @echo off
 setlocal
 
+:: Define log file path
+set LOGFILE=%~dp0youtube_control.log
+
+:: Function to write log with timestamp
+:log
+echo [%date% %time%] %~1 >> %LOGFILE%
+goto :eof
+
 :: Get the current hour and AM/PM part
 for /f "tokens=1,2 delims=: " %%a in ('time /t') do (
     set currenthour=%%a
@@ -16,15 +24,26 @@ set HOSTSFILE=%windir%\System32\drivers\etc\hosts
 :: Check if current time is between 2 PM and 3 PM
 if %currenthour%==2 if "%ampm%"=="PM" (
     echo Unblocking YouTube...
-    :: Unblock YouTube: Remove YouTube lines from the hosts file
+    call :log "Attempting to unblock YouTube."
     findstr /v /i "youtube.com" "%HOSTSFILE%" > "%HOSTSFILE%.tmp"
-    move /y "%HOSTSFILE%.tmp" "%HOSTSFILE%"
+    if errorlevel 1 (
+        call :log "ERROR: Failed to unblock YouTube."
+    ) else (
+        move /y "%HOSTSFILE%.tmp" "%HOSTSFILE%"
+        call :log "SUCCESS: YouTube unblocked."
+    )
 ) else (
     echo Blocking YouTube...
-    :: Block YouTube: Add YouTube lines to the hosts file
+    call :log "Attempting to block YouTube."
     echo 127.0.0.1 www.youtube.com >> %HOSTSFILE%
     echo 127.0.0.1 youtube.com >> %HOSTSFILE%
+    if errorlevel 1 (
+        call :log "ERROR: Failed to block YouTube."
+    ) else (
+        call :log "SUCCESS: YouTube blocked."
+    )
 )
 
 echo Done.
+call :log "Script execution completed."
 endlocal
