@@ -30,13 +30,17 @@ if %currenthour%==2 if "%ampm%"=="PM" (
         call :log "ERROR: Failed to unblock YouTube."
     ) else (
         move /y "%HOSTSFILE%.tmp" "%HOSTSFILE%"
-        call :log "SUCCESS: YouTube unblocked."
+        if errorlevel 1 (
+            call :log "ERROR: Failed to replace hosts file."
+        ) else (
+            call :log "SUCCESS: YouTube unblocked."
+        )
     )
 ) else (
     echo Blocking YouTube...
     call :log "Attempting to block YouTube."
-    echo 127.0.0.1 www.youtube.com >> %HOSTSFILE%
-    echo 127.0.0.1 youtube.com >> %HOSTSFILE%
+    >> %HOSTSFILE% echo 127.0.0.1 www.youtube.com
+    >> %HOSTSFILE% echo 127.0.0.1 youtube.com
     if errorlevel 1 (
         call :log "ERROR: Failed to block YouTube."
     ) else (
