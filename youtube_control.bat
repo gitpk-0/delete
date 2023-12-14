@@ -1,61 +1,36 @@
 @echo off
-setlocal
+setlocal EnableDelayedExpansion
 
 :: Define log file path
-set LOGFILE=%~dp0youtube_control_log.log
-
-:: Function to write log with timestamp
-:log
-echo [%date% %time%] %~1 >> %LOGFILE%
-goto :eof
+set LOGFILE=%~dp0youtube_control.log
 
 :: Log script start
-call :log Script started.
+echo [%date% %time%] Script started. >> %LOGFILE%
 
 :: Get the current hour and AM/PM part
-call :log "Getting current time."
-for /f "tokens=1,2 delims=: " %%a in ('time /t') do (
+for /f "tokens=1-2 delims=: " %%a in ('time /t') do (
     set currenthour=%%a
     set ampm=%%b
 )
-call :log "Current time is %currenthour% %ampm%."
+echo [%date% %time%] Current hour is %currenthour% and ampm is %ampm%. >> %LOGFILE%
 
 :: Convert hour to number for comparison (removing leading zero if present)
 set /a currenthour=1%currenthour% %% 100
+echo [%date% %time%] Converted hour: %currenthour%. >> %LOGFILE%
 
-:: Define hosts file path
+:: Define the path to the hosts file. This is where the YouTube URLs will be blocked/unblocked.
 set HOSTSFILE=%windir%\System32\drivers\etc\hosts
-call :log "Hosts file path: %HOSTSFILE%."
+echo [%date% %time%] Hosts file path is set to %HOSTSFILE%. >> %LOGFILE%
 
-:: Check if current time is between 2 PM and 3 PM
+:: Check if the current time is between 2 PM and 3 PM.
 if %currenthour%==2 if "%ampm%"=="PM" (
-    call :log "Time check passed. It's between 2 PM and 3 PM."
-    echo Unblocking YouTube...
-    call :log "Attempting to unblock YouTube."
-    findstr /v /i "youtube.com" "%HOSTSFILE%" > "%HOSTSFILE%.tmp"
-    if errorlevel 1 (
-        call :log "ERROR: Failed to create temporary hosts file."
-    ) else (
-        move /y "%HOSTSFILE%.tmp" "%HOSTSFILE%"
-        if errorlevel 1 (
-            call :log "ERROR: Failed to replace hosts file."
-        ) else (
-            call :log "SUCCESS: YouTube unblocked."
-        )
-    )
+    echo [%date% %time%] Current time is between 2 PM and 3 PM. >> %LOGFILE%
+    echo [%date% %time%] Attempting to unblock YouTube. >> %LOGFILE%
 ) else (
-    call :log "Time check failed. It's not between 2 PM and 3 PM."
-    echo Blocking YouTube...
-    call :log "Attempting to block YouTube."
-    >> %HOSTSFILE% echo 127.0.0.1 www.youtube.com
-    >> %HOSTSFILE% echo 127.0.0.1 youtube.com
-    if errorlevel 1 (
-        call :log "ERROR: Failed to add YouTube block entries to hosts file."
-    ) else (
-        call :log "SUCCESS: YouTube blocked."
-    )
+    echo [%date% %time%] Current time is not between 2 PM and 3 PM. >> %LOGFILE%
+    echo [%date% %time%] Attempting to block YouTube. >> %LOGFILE%
 )
 
-echo Done.
-call :log "Script execution completed."
+:: Log script end
+echo [%date% %time%] Script execution completed. >> %LOGFILE%
 endlocal
