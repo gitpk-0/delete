@@ -2,7 +2,7 @@
 setlocal
 
 :: Define log file path
-set LOGFILE=%~dp0youtube_control.log
+set LOGFILE=%~dp0youtube_control_log.log
 
 :: Function to write log with timestamp
 :log
@@ -10,7 +10,7 @@ echo [%date% %time%] %~1 >> %LOGFILE%
 goto :eof
 
 :: Log script start
-call :log "Script started."
+call :log Script started.
 
 :: Get the current hour and AM/PM part
 call :log "Getting current time."
